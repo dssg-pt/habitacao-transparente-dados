@@ -1,16 +1,42 @@
 # habitacao-transparente-dados
 
+## Processamento dos dados
+
+Os dados disponibilizados são referentes a 14 de fevereiro de 2025. O processamento consistiu na extração dos dados de uma base de dados MongoDB, seguida de uma pipeline de anonimização para garantir a privacidade dos inquiridos.
+
+## Tranformações aplicadas
+
+Para minimizar o risco de identificação individual, foram implementadas as seguintes transformações:
+
+1. **Remoção de Campos de Texto Livre**
+- `comentarios`
+- `outra-insatisfacao`
+- `outra-estrategia-compra`
+- `outra-estrategia-arrendamento`
+
+2. **Remoção de Metadados**
+- Identificadores únicos
+- Campos de metadados do sistema
+
+3. **Agregação de Campos com Elevada Cardinalidade**
+- Campo `freguesia` foi removido devido à elevada taxa de valores únicos
+- Campo `nacionalidade` foi binarizado em `portuguesa` e `nao-portuguesa`
+- Campo `data_nascimento` foi discretizado em intervalos de 5 anos
+
+Estas transformações seguem as boas práticas de anonimização de dados, reduzindo a granularidade de informações que poderiam, em conjunto, permitir a reidentificação dos inquiridos, mantendo simultaneamente a utilidade analítica do conjunto de dados.
+
+## Dicionário de Dados
+
 | **Campo** | **Descrição** |
 | --- | --- |
 | situacao-habitacional | Campo obrigatório referente à situação habitacional atual. Poderá conter apenas um dos seguintes valores: [arrendo] (”Arrendo a casa/parte da casa onde vivo”), [comprei] (”Comprei a casa onde vivo”), [outrem] (”Vivo alojado por outrem (com familiares, casa cedida/emprestada, por entidade patronal, etc)”) ou [herdei] (”Herdei a casa onde vivo”). |
 | distrito | Campo obrigatório  referente ao distrito onde habita (Portugal continental e ilhas). |
 | concelho | Campo obrigatório referente ao concelho onde habita (Portugal continental e ilhas). |
-| freguesia | Campo obrigatório  referente à freguesia/união de freguesias onde habita (Portugal continental e ilhas). |
 | area-util | Campo obrigatório referente à área útil aproximada da habitação em m². Apenas é considerada a superfície interna habitável, excluindo garagens, jardins, pátios e varandas. Poderá conter apenas um dos seguintes valores: [<20], [21-40], [41-60], [61-80], [81-100] , [101-200], [201-400], [>400] ou [NA] (”Não sei/Não quero responder”). |
 | tipo-casa | Campo obrigatório referente ao tipo de habitação. Poderá conter um dos seguintes valores: [apartamento] ou [moradia]. |
 | tipologia | Campo obrigatório referente à tipologia da habitação. Poderá conter apenas um dos seguintes valores: [T0], [T1], [T2], [T3], [T4+]. |
-| ano-nascimento | Campo obrigatório referente ao ano de nascimento. Apenas são permitidos valores entre 1900 e o ano atual. |
-| nacionalidade | Campo obrigatório referente à nacionalidade. |
+| ano-nascimento | Campo obrigatório referente ao ano de nascimento. Apenas são permitidos valores entre 1900 e o ano atual. Os valores foram agrupados em intervalos de 5 anos no processamento dos dados. |
+| nacionalidade | Campo obrigatório referente à nacionalidade. Poderá conter apenas um dos seguintes valores [portuguesa] e [nao-portuguesa]. |
 | rendimento-anual | Campo obrigatório referente ao rendimento líquido anual atual. Poderá conter apenas um dos seguintes valores: [<7001], [7001-12000], [12001-20000], [20001-35000], [35001-50000], [50001-80000], [>80001]. |
 | num-pessoas-nao-dependentes | Campo obrigatório referente ao número de pessoas não dependentes a viver na mesma habitação, para além do próprio. Apenas são permitidos valores entre 0 e 20. |
 | num-pessoas-dependentes | Campo obrigatório referente ao número de pessoas dependentes a viver na mesma habitação, para além do próprio. Apenas são permitidos valores entre 0 e 20. |
