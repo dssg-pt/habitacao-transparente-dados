@@ -1,0 +1,39 @@
+name: Extract MongoDB Data and Upload to Repo
+
+on:
+  schedule:
+    - cron: '0 0 1 * *'  # This schedules the workflow to run at midnight on the 1st of each month.
+  workflow_dispatch:  # Allows manual triggering as well.
+
+jobs:
+  extract_and_upload:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        pip install --requirement requirements.txt
+
+    - name: Run MongoDB data extraction script
+      env:
+        MONGO_USER: ${{ secrets.MONGO_USER }}
+        MONGO_PASS: ${{ secrets.MONGO_PASS }}
+        MONGO_SERVER: ${{ secrets.MONGO_SERVER }}
+      run: |
+        python data_update.py
+
+    - name: Commit and push extracted data (force overwrite without commit message)
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "github-actions@users.noreply.github.com"
+        git add dados_new.csv
+        git commit -m "Update the file"
+        git push  # Push the commit forcefully to overwrite the data.json file.
